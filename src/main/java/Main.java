@@ -1,6 +1,4 @@
-import adapter.NotFormatOrderReaderAdapter;
-import adapter.OrderSource;
-import adapter.TxtOrderReaderAdapter;
+import adapter.*;
 import model.Client;
 import model.Order;
 import model.PriceConfig;
@@ -17,22 +15,13 @@ public class Main {
         // Настройка конфигурации (Цена, стартовая скидка, шаг скидки)
         PriceConfig config = new PriceConfig(10, 50, 5);
 
-        try {
-            OrderSource txtSource = new TxtOrderReaderAdapter();
-            OrderSource notFormatSource = new NotFormatOrderReaderAdapter();
+        FileOrderSourceFactory factory = new FileOrderSourceFactory();
 
-            // Читаем заказы из источников
-            List<Order> allOrders;
-            try {
-                allOrders = new ArrayList<>(txtSource.readOrders());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            try {
-                allOrders.addAll(notFormatSource.readOrders());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+        try {
+            // Указываем путь к папке с файлами заказов
+            String inputDirectory = "src/main";
+
+            List<Order> allOrders = factory.readOrdersFromDirectory(inputDirectory);
 
             // Сортируем все заказы по времени подачи (от раннего к позднему)
             allOrders.sort(Comparator.comparing(Order::getCreateDateTime));
